@@ -21,7 +21,7 @@ export class ApiService {
     });
 
     return this._http.post(this.url, body, { headers }).pipe(
-      tap((data) => console.log('All: ' + JSON.stringify(data))),
+      tap((data) => console.log('All: ', data)),
       catchError(this.handleError)
     );
   }

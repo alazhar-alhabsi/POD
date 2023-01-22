@@ -28,34 +28,18 @@ export class AppComponent implements OnInit {
   startValue: any = null;
   endValue: any = null;
   eventValue: any = null;
+  events: Event[] = [];
+  scaleMax: Number = 0;
 
   constructor(private api: ApiService) {}
 
-  ngOnInit() {
-    const events: Event[] = [
-      { start: 50, end: 150, name: 'Stuck pipe', color: '#f00', width: 220 },
-      { start: 100, end: 200, name: 'Mud loss', color: '#afafaf', width: 100 },
-      {
-        start: 150,
-        end: 250,
-        name: 'Cricnlation loss',
-        color: '#000',
-        width: 40,
-      },
-      { start: 400, end: 450, name: 'Stuck pipe', color: '#f00', width: 220 },
-      {
-        start: 550,
-        end: 700,
-        name: 'Cricnlation loss',
-        color: '#000',
-        width: 40,
-      },
-    ];
+  ngOnInit() {}
 
+  generateGraph() {
     const yScale = d3
       .scaleLinear()
-      .domain([0, 700])
-      .range([50, 800 - 50]);
+      .domain([0, this.scaleMax])
+      .range([50, 700 + 50]);
     const yAxis = d3.axisRight(yScale).tickSize(0);
 
     const svg = d3
@@ -67,7 +51,7 @@ export class AppComponent implements OnInit {
       .attr('height', '600');
     const g = svg.append('g').attr('transform', 'translate(120, 40)');
     g.selectAll('rect')
-      .data(events)
+      .data(this.events)
       .enter()
       .append('rect')
       .attr('x', (d: Event) => (220 + 100 - d.width) / 2)
@@ -76,7 +60,7 @@ export class AppComponent implements OnInit {
       .attr('height', (d: Event) => yScale(d.end) - yScale(d.start))
       .style('fill', (d: Event) => d.color);
     g.selectAll('text')
-      .data(events)
+      .data(this.events)
       .enter()
       .append('text')
       .attr('x', (d: Event) => 220 + 80)
@@ -110,18 +94,13 @@ export class AppComponent implements OnInit {
   }
 
   proccess() {
-    let data = [
-      { Start: 50, End: 150, Event: 'Stuck Pipe' },
-      { Start: 100, End: 200, Event: 'Mud Loss' },
-      { Start: 150, End: 200, Event: 'Circulation Loss' },
-      { Start: 400, End: 450, Event: 'Stuck Pipe' },
-      { Start: 600, End: 650, Event: 'Circulation Loss' },
-      { Start: 550, End: 700, Event: 'Circulation Loss' },
-    ];
+    d3.selectAll('svg').remove();
 
-    this.api.getProcessedData(data).subscribe(
+    this.api.getProcessedData(this.eventList).subscribe(
       (res) => {
-        console.log('look for this', res);
+        this.events = res.events;
+        this.scaleMax = res.maxValue;
+        this.generateGraph();
       },
       (error) => {
         console.log('look for this', error);
