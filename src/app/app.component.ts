@@ -47,8 +47,8 @@ export class AppComponent implements OnInit {
       .append('svg')
       .attr('viewBox', '0 00 800 800')
       .attr('preserveAspectRatio', 'xMidYMid meet')
-      .attr('width', '600')
-      .attr('height', '600');
+      .attr('width', '800')
+      .attr('height', '800');
     const g = svg.append('g').attr('transform', 'translate(120, 40)');
     g.selectAll('rect')
       .data(this.events)
@@ -96,15 +96,17 @@ export class AppComponent implements OnInit {
   proccess() {
     d3.selectAll('svg').remove();
 
-    this.api.getProcessedData(this.eventList).subscribe(
-      (res) => {
-        this.events = res.events;
-        this.scaleMax = res.maxValue;
-        this.generateGraph();
-      },
-      (error) => {
-        console.log('look for this', error);
-      }
-    );
+    if (this.eventList.length < 1) {
+      this.api.getProcessedData(this.eventList).subscribe(
+        (res) => {
+          this.events = res.events;
+          this.scaleMax = res.maxValue;
+          this.generateGraph();
+        },
+        (error) => {
+          console.log('look for this', error);
+        }
+      );
+    }
   }
 }
